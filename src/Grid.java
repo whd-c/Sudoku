@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class Grid {
     public Grid(int n) {
         if (n <= 0) {
@@ -16,15 +18,16 @@ public class Grid {
 
     }
 
-    public boolean isSolved() {
+    public ArrayList<Vector2> getUnsolvedSquares() {
+        var unsolvedSquares = new ArrayList<Vector2>();
         for (int i = 0; i < gridSize; i++) {
             for (int j = 0; j < gridSize; j++) {
-                if (!isSolvedAt(i, j)) {
-                    return false;
+                if (!isSolvedAt(i, j) && grid[i][j] != 0) {
+                    unsolvedSquares.add(new Vector2(i, j));
                 }
             }
         }
-        return true;
+        return unsolvedSquares;
     }
 
     public boolean isSolvedAt(int i, int j) {
@@ -44,12 +47,21 @@ public class Grid {
     }
 
     public void printGrid() {
+        System.out.print("\t");
+        for (int i = 1; i <= gridSize; i++) {
+            System.out.print(i + "    ");
+        }
+        System.out.println();
         for (int i = 0; i < gridSize; i++) {
+            System.out.print((char) (i + 65) + " ");
             for (int j = 0; j < gridSize; j++) {
-                System.out.print("[ ");
+                System.out.print("[  ");
                 if (grid[i][j] != 0)
                     System.out.print(grid[i][j]);
-                System.out.print(" ]" + " ");
+                if (j < 9)
+                    System.out.print(" ]");
+                else
+                    System.out.print("  ]");
             }
             System.out.println();
         }

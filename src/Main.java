@@ -4,9 +4,9 @@ public class Main {
             var game = new Game();
             game.run();
         } catch (IllegalArgumentException e) {
-            System.err.println("An illegal argument exception occured: " + e.getMessage());
+            System.err.println("An illegal argument exception occurred: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("An unexpected error occured: " + e.getMessage());
+            System.err.println("An unexpected error occurred: " + e.getMessage());
         }
     }
 }
