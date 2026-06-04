@@ -8,6 +8,8 @@ public class Game {
         score = 0;
         GRID_SIZE = 9;
         grid = new Grid(GRID_SIZE);
+        scanner = new Scanner(System.in);
+        difficulty = Difficulty.EASY;
     }
 
     public void run() {
@@ -37,7 +39,18 @@ public class Game {
 
     private void playGameLoop() {
         boolean inGame = true;
+        grid.generate(emptyCellsAmount(difficulty));
         while (inGame) {
+            if (grid.isSolved()) {
+                switch (difficulty) {
+                    case EASY -> score += 100;
+                    case MEDIUM -> score += 200;
+                    case HARD -> score += 300;
+                }
+                clearConsole();
+                System.out.println("You win!");
+                break;
+            }
             printGameMenu();
             GameOption gameOption = intToGameOption(getMenuInput()).orElse(null);
             if (gameOption == null) {
@@ -52,11 +65,12 @@ public class Game {
                             throw new IllegalArgumentException("Square is already occupied.");
                         }
                         System.out.println("Insert value to insert: ");
-                        Scanner scanner = new Scanner(System.in);
                         int val;
                         if (scanner.hasNextInt()) {
                             val = scanner.nextInt();
+                            scanner.nextLine();
                         } else {
+                            scanner.nextLine();
                             throw new IllegalArgumentException("Argument is not a number.");
                         }
                         if (val <= 0 || val > GRID_SIZE) {
@@ -80,12 +94,12 @@ public class Game {
                     }
                     break;
                 case CHECK_AT:
-                    System.out.println("Enter square to check (LetterNumber format):");
-                    try {
-                        Vector2 square = parseGameOption();
-                    } catch (IllegalArgumentException e) {
-                        System.out.println("Check at error: " + e.getMessage());
-                    }
+//                    System.out.println("Enter square to check (LetterNumber format):");
+//                    try {
+//                        Vector2 square = parseGameOption();
+//                    } catch (IllegalArgumentException e) {
+//                        System.out.println("Check at error: " + e.getMessage());
+//                    }
                     break;
                 case CHECK_GRID:
                     //color unsolved red
@@ -99,8 +113,42 @@ public class Game {
     }
 
     private void goIntoSettings() {
-        printSettingsMenu();
+        boolean inSettings = true;
+        while (inSettings) {
+            printSettingsMenu();
+            SettingsOption settingsOption = intToSettingsOption(getMenuInput()).orElse(null);
+            if (settingsOption == null) {
+                continue;
+            }
+            switch (settingsOption) {
+                case SET_DIFFICULTY:
+                    setDifficultyMenu();
+                    break;
+                case CLEAR_CACHE:
+                    //clearCache();
+                    break;
+                case BACK:
+                    inSettings = false;
+                    break;
+
+            }
+        }
+
         //TODO: Finish in the next commit
+    }
+
+    private void setDifficultyMenu() {
+        printDifficultyMenu();
+        Difficulty diff = intToDifficulty(getMenuInput()).orElse(null);
+        if (diff == null) {
+            return;
+        }
+        switch (diff) {
+            case EASY -> difficulty = Difficulty.EASY;
+            case MEDIUM -> difficulty = Difficulty.MEDIUM;
+            case HARD -> difficulty = Difficulty.HARD;
+        }
+        //writeToCache();
     }
 
     private enum MenuOption {
@@ -131,7 +179,9 @@ public class Game {
 
     private final int GRID_SIZE;
     private int score;
+    private final Scanner scanner;
     private Grid grid;
+    private Difficulty difficulty;
 
     private void clearConsole() {
         try {
@@ -157,7 +207,8 @@ public class Game {
                 "\\$$$$$$  |\\$$$$$$  |$$$$$$$  | $$$$$$  |$$ | \\$$\\ \\$$$$$$  |\n" +
                 " \\______/  \\______/ \\_______/  \\______/ \\__|  \\__| \\______/ ");
         System.out.println("\t\t 1. Play");
-        System.out.println("\t\t 2. Quit");
+        System.out.println("\t\t 2. Settings");
+        System.out.println("\t\t 3. Quit");
     }
 
     private void printGameMenu() {
@@ -178,17 +229,26 @@ public class Game {
         System.out.println("\t\t 3. Back to menu");
     }
 
+    private void printDifficultyMenu() {
+        clearConsole();
+        System.out.println("Select your difficulty:");
+        System.out.println("\t\t1. Easy");
+        System.out.println("\t\t2. Medium");
+        System.out.println("\t\t3. Hard");
+    }
+
     private int getMenuInput() {
-        Scanner scanner = new Scanner(System.in);
         if (scanner.hasNextInt()) {
-            return scanner.nextInt();
+            int val = scanner.nextInt();
+            scanner.nextLine();
+            return val;
         } else {
+            scanner.nextLine();
             return -1;
         }
     }
 
     private Vector2 parseGameOption() {
-        Scanner scanner = new Scanner(System.in);
         String in = scanner.nextLine().trim();
         int number;
         if (in.length() < 2) {
@@ -250,6 +310,14 @@ public class Game {
             case 2 -> Optional.of(Difficulty.MEDIUM);
             case 3 -> Optional.of(Difficulty.HARD);
             default -> Optional.empty();
+        };
+    }
+
+    private int emptyCellsAmount(Difficulty diff) {
+        return switch (diff) {
+            case EASY -> (int) (0.5 * GRID_SIZE * GRID_SIZE);
+            case MEDIUM -> (int) (0.6 * GRID_SIZE * GRID_SIZE);
+            case HARD -> (int) (0.75 * GRID_SIZE * GRID_SIZE);
         };
     }
 
