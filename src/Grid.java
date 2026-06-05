@@ -18,9 +18,9 @@ public class Grid {
         this.solvedGrid = new int[n][n];
     }
 
-    private int gridSize;
-    private int[][] grid;
-    private int[][] solvedGrid;
+    private final int gridSize;
+    private final int[][] grid;
+    private final int[][] solvedGrid;
 
     public void generate(int cellsToRemove) {
         clearBoard();

@@ -1,15 +1,22 @@
-import java.io.IOException;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
 
 public class Game {
 
     public Game() {
-        score = 0;
         GRID_SIZE = 9;
+        FILE_NAME = "cache.json";
         grid = new Grid(GRID_SIZE);
         scanner = new Scanner(System.in);
+        score = 0;
         difficulty = Difficulty.EASY;
+        readCache();
     }
 
     public void run() {
@@ -49,6 +56,7 @@ public class Game {
                 }
                 clearConsole();
                 System.out.println("You win!");
+                writeToCache();
                 break;
             }
             printGameMenu();
@@ -125,7 +133,7 @@ public class Game {
                     setDifficultyMenu();
                     break;
                 case CLEAR_CACHE:
-                    //clearCache();
+                    clearCache();
                     break;
                 case BACK:
                     inSettings = false;
@@ -133,8 +141,6 @@ public class Game {
 
             }
         }
-
-        //TODO: Finish in the next commit
     }
 
     private void setDifficultyMenu() {
@@ -148,7 +154,53 @@ public class Game {
             case MEDIUM -> difficulty = Difficulty.MEDIUM;
             case HARD -> difficulty = Difficulty.HARD;
         }
-        //writeToCache();
+        writeToCache();
+    }
+
+    private void writeToCache() {
+        Map<String, Object> cacheData = new HashMap<>();
+        cacheData.put("difficulty", difficulty.name());
+        cacheData.put("score", score);
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+        try (FileWriter writer = new FileWriter(FILE_NAME)) {
+            gson.toJson(cacheData, writer);
+        } catch (IOException e) {
+            System.out.println("Failed to write to cache: " + e.getMessage());
+        }
+    }
+
+    private void readCache() {
+        Gson gson = new Gson();
+        try (FileReader reader = new FileReader(FILE_NAME)) {
+            Map<?, ?> cacheData = gson.fromJson(reader, Map.class);
+            if (cacheData != null) {
+                if (cacheData.containsKey("difficulty")) {
+                    String diffStr = (String) cacheData.get("difficulty");
+                    this.difficulty = Difficulty.valueOf(diffStr);
+                }
+                if (cacheData.containsKey("score")) {
+                    Number scoreNum = (Number) cacheData.get("score");
+                    this.score = scoreNum.intValue();
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            difficulty = Difficulty.EASY;
+        } catch (FileNotFoundException e) {
+            writeToCache();
+        } catch (IOException e) {
+            System.out.println("Failed to read cache: " + e.getMessage());
+        }
+    }
+
+    private void clearCache() {
+        difficulty = Difficulty.EASY;
+        score = 0;
+        File cacheFile = new File(FILE_NAME);
+
+        if (cacheFile.exists()) {
+            cacheFile.delete();
+        }
     }
 
     private enum MenuOption {
@@ -178,9 +230,10 @@ public class Game {
     }
 
     private final int GRID_SIZE;
-    private int score;
+    private final String FILE_NAME;
     private final Scanner scanner;
-    private Grid grid;
+    private final Grid grid;
+    private int score;
     private Difficulty difficulty;
 
     private void clearConsole() {
