@@ -7,3 +7,5 @@ public class Vector2 {
         y = _y;
     }
 }
+
+//deprecated

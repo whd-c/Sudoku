@@ -1,9 +1,3 @@
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -12,8 +6,13 @@ public class Game {
     public Game() {
         GRID_SIZE = 9;
         FILE_NAME = "cache.json";
-        grid = new Grid(GRID_SIZE);
+        cacheManager = new CacheManager(FILE_NAME);
+
         scanner = new Scanner(System.in);
+        menu = new Menu(scanner);
+
+        grid = new Grid(GRID_SIZE);
+
         score = 0;
         difficulty = Difficulty.EASY;
         readCache();
@@ -22,8 +21,8 @@ public class Game {
     public void run() {
         boolean isPlaying = true;
         while (isPlaying) {
-            printMainMenu();
-            MenuOption menuOption = intToMenuOption(getMenuInput()).orElse(null);
+            menu.printMainMenu();
+            MenuOption menuOption = intToMenuOption(menu.getMenuInput()).orElse(null);
             if (menuOption == null) {
                 continue;
             }
@@ -39,7 +38,7 @@ public class Game {
                     break;
             }
         }
-        clearConsole();
+        menu.clearConsole();
         System.out.println("Thanks for playing!");
         System.out.println("Final score: " + score);
     }
@@ -54,13 +53,13 @@ public class Game {
                     case MEDIUM -> score += 200;
                     case HARD -> score += 300;
                 }
-                clearConsole();
+                menu.clearConsole();
                 System.out.println("You win!");
                 writeToCache();
                 break;
             }
-            printGameMenu();
-            GameOption gameOption = intToGameOption(getMenuInput()).orElse(null);
+            menu.printGameMenu(grid);
+            GameOption gameOption = intToGameOption(menu.getMenuInput()).orElse(null);
             if (gameOption == null) {
                 continue;
             }
@@ -68,7 +67,7 @@ public class Game {
                 case INSERT:
                     System.out.println("Enter square to insert to (LetterNumber format):");
                     try {
-                        Vector2 square = parseGameOption();
+                        Vector2 square = menu.parseGameOption(GRID_SIZE);
                         if (grid.getAt(square.y, square.x) != 0) {
                             throw new IllegalArgumentException("Square is already occupied.");
                         }
@@ -87,18 +86,20 @@ public class Game {
                         grid.insertAt(square.y, square.x, val);
                     } catch (IllegalArgumentException e) {
                         System.out.println("Insert error: " + e.getMessage());
+                        scanner.nextLine();
                     }
                     break;
                 case ERASE:
                     System.out.println("Enter square to erase (LetterNumber format):");
                     try {
-                        Vector2 square = parseGameOption();
+                        Vector2 square = menu.parseGameOption(GRID_SIZE);
                         if (grid.getAt(square.y, square.x) == 0) {
                             throw new IllegalArgumentException("Square is already empty.");
                         }
                         grid.removeAt(square.y, square.x);
                     } catch (IllegalArgumentException e) {
                         System.out.println("Erase error: " + e.getMessage());
+                        scanner.nextLine();
                     }
                     break;
                 case CHECK_AT:
@@ -107,6 +108,7 @@ public class Game {
 //                        Vector2 square = parseGameOption();
 //                    } catch (IllegalArgumentException e) {
 //                        System.out.println("Check at error: " + e.getMessage());
+//                    scanner.nextLine();
 //                    }
                     break;
                 case CHECK_GRID:
@@ -123,8 +125,8 @@ public class Game {
     private void goIntoSettings() {
         boolean inSettings = true;
         while (inSettings) {
-            printSettingsMenu();
-            SettingsOption settingsOption = intToSettingsOption(getMenuInput()).orElse(null);
+            menu.printSettingsMenu();
+            SettingsOption settingsOption = intToSettingsOption(menu.getMenuInput()).orElse(null);
             if (settingsOption == null) {
                 continue;
             }
@@ -144,8 +146,8 @@ public class Game {
     }
 
     private void setDifficultyMenu() {
-        printDifficultyMenu();
-        Difficulty diff = intToDifficulty(getMenuInput()).orElse(null);
+        menu.printDifficultyMenu();
+        Difficulty diff = intToDifficulty(menu.getMenuInput()).orElse(null);
         if (diff == null) {
             return;
         }
@@ -158,49 +160,25 @@ public class Game {
     }
 
     private void writeToCache() {
-        Map<String, Object> cacheData = new HashMap<>();
-        cacheData.put("difficulty", difficulty.name());
-        cacheData.put("score", score);
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-        try (FileWriter writer = new FileWriter(FILE_NAME)) {
-            gson.toJson(cacheData, writer);
-        } catch (IOException e) {
-            System.out.println("Failed to write to cache: " + e.getMessage());
-        }
+        cacheManager.write(new CacheData(difficulty.name(), score));
     }
 
     private void readCache() {
-        Gson gson = new Gson();
-        try (FileReader reader = new FileReader(FILE_NAME)) {
-            Map<?, ?> cacheData = gson.fromJson(reader, Map.class);
-            if (cacheData != null) {
-                if (cacheData.containsKey("difficulty")) {
-                    String diffStr = (String) cacheData.get("difficulty");
-                    this.difficulty = Difficulty.valueOf(diffStr);
-                }
-                if (cacheData.containsKey("score")) {
-                    Number scoreNum = (Number) cacheData.get("score");
-                    this.score = scoreNum.intValue();
-                }
-            }
+        CacheData data = cacheManager.read();
+
+        score = data.score();
+
+        try {
+            difficulty = Difficulty.valueOf(data.difficulty());
         } catch (IllegalArgumentException e) {
             difficulty = Difficulty.EASY;
-        } catch (FileNotFoundException e) {
-            writeToCache();
-        } catch (IOException e) {
-            System.out.println("Failed to read cache: " + e.getMessage());
         }
     }
 
     private void clearCache() {
         difficulty = Difficulty.EASY;
         score = 0;
-        File cacheFile = new File(FILE_NAME);
-
-        if (cacheFile.exists()) {
-            cacheFile.delete();
-        }
+        cacheManager.clear();
     }
 
     private enum MenuOption {
@@ -229,104 +207,15 @@ public class Game {
         HARD,
     }
 
+    private final CacheManager cacheManager;
+    private final Menu menu;
+
     private final int GRID_SIZE;
     private final String FILE_NAME;
     private final Scanner scanner;
     private final Grid grid;
     private int score;
     private Difficulty difficulty;
-
-    private void clearConsole() {
-        try {
-            if (System.getProperty("os.name").contains("Windows")) {
-                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-            } else {
-                new ProcessBuilder("clear").inheritIO().start().waitFor();
-            }
-        } catch (IOException | InterruptedException e) {
-            System.out.print("\033[H\033[2J");
-            System.out.flush();
-        }
-    }
-
-    private void printMainMenu() {
-        clearConsole();
-        System.out.println(" $$$$$$\\  $$\\   $$\\ $$$$$$$\\   $$$$$$\\  $$\\   $$\\ $$\\   $$\\ \n" +
-                "$$  __$$\\ $$ |  $$ |$$  __$$\\ $$  __$$\\ $$ | $$  |$$ |  $$ |\n" +
-                "$$ /  \\__|$$ |  $$ |$$ |  $$ |$$ /  $$ |$$ |$$  / $$ |  $$ |\n" +
-                "\\$$$$$$\\  $$ |  $$ |$$ |  $$ |$$ |  $$ |$$$$$  /  $$ |  $$ |\n" +
-                " \\____$$\\ $$ |  $$ |$$ |  $$ |$$ |  $$ |$$  $$<   $$ |  $$ |\n" +
-                "$$\\   $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |\\$$\\  $$ |  $$ |\n" +
-                "\\$$$$$$  |\\$$$$$$  |$$$$$$$  | $$$$$$  |$$ | \\$$\\ \\$$$$$$  |\n" +
-                " \\______/  \\______/ \\_______/  \\______/ \\__|  \\__| \\______/ ");
-        System.out.println("\t\t 1. Play");
-        System.out.println("\t\t 2. Settings");
-        System.out.println("\t\t 3. Quit");
-    }
-
-    private void printGameMenu() {
-        clearConsole();
-        grid.printGrid();
-        System.out.println("\t\t 1. Insert");
-        System.out.println("\t\t 2. Erase");
-        System.out.println("\t\t 3. Check square");
-        System.out.println("\t\t 4. Check grid");
-        System.out.println("\t\t 5. Quit");
-    }
-
-    private void printSettingsMenu() {
-        clearConsole();
-        System.out.println("Settings.");
-        System.out.println("\t\t 1. Set difficulty");
-        System.out.println("\t\t 2. Clear cache");
-        System.out.println("\t\t 3. Back to menu");
-    }
-
-    private void printDifficultyMenu() {
-        clearConsole();
-        System.out.println("Select your difficulty:");
-        System.out.println("\t\t1. Easy");
-        System.out.println("\t\t2. Medium");
-        System.out.println("\t\t3. Hard");
-    }
-
-    private int getMenuInput() {
-        if (scanner.hasNextInt()) {
-            int val = scanner.nextInt();
-            scanner.nextLine();
-            return val;
-        } else {
-            scanner.nextLine();
-            return -1;
-        }
-    }
-
-    private Vector2 parseGameOption() {
-        String in = scanner.nextLine().trim();
-        int number;
-        if (in.length() < 2) {
-            throw new IllegalArgumentException("Invalid option.");
-        }
-        char letter = Character.toUpperCase(in.charAt(0));
-        if (!Character.isLetter(letter)) {
-            throw new IllegalArgumentException("Invalid letter.");
-        }
-        try {
-            number = Integer.parseInt(in.substring(1)) - 1;
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid number.");
-        }
-        if (number < 0 || number >= GRID_SIZE) {
-            throw new IllegalArgumentException("Number out of range.");
-        }
-
-        int letterInInt = letter - 'A';
-        if (letterInInt < 0 || letterInInt >= GRID_SIZE) {
-            throw new IllegalArgumentException("Letter out of range.");
-        }
-
-        return new Vector2(number, letterInInt);
-    }
 
     private Optional<MenuOption> intToMenuOption(int i) {
         return switch (i) {
