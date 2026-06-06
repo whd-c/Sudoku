@@ -23,9 +23,13 @@ public class Menu {
         System.out.println("\t\t 3. Quit");
     }
 
-    public void printGameMenu(Grid grid) {
+    public void printGameMenu(Grid grid, boolean checkedGrid) {
         clearConsole();
-        grid.printGrid();
+        if (checkedGrid) {
+            grid.printCheckedGrid();
+        } else {
+            grid.printGrid();
+        }
         System.out.println("\t\t 1. Insert");
         System.out.println("\t\t 2. Erase");
         System.out.println("\t\t 3. Check square");

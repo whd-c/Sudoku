@@ -13,14 +13,16 @@ public class Grid {
             throw new IllegalArgumentException("Grid size must be a perfect square");
         }
 
-        this.gridSize = n;
-        this.grid = new int[n][n];
-        this.solvedGrid = new int[n][n];
+        gridSize = n;
+        grid = new int[n][n];
+        solvedGrid = new int[n][n];
+        startingGrid = new boolean[n][n];
     }
 
     private final int gridSize;
     private final int[][] grid;
     private final int[][] solvedGrid;
+    private final boolean[][] startingGrid;
 
     public void generate(int cellsToRemove) {
         clearBoard();
@@ -29,6 +31,11 @@ public class Grid {
             System.arraycopy(solvedGrid[i], 0, grid[i], 0, gridSize);
         }
         removeRandomNumbers(cellsToRemove);
+        for (int i = 0; i < gridSize; i++) {
+            for (int j = 0; j < gridSize; j++) {
+                startingGrid[i][j] = grid[i][j] != 0;
+            }
+        }
     }
 
     private void clearBoard() {
@@ -36,6 +43,7 @@ public class Grid {
             for (int j = 0; j < gridSize; j++) {
                 solvedGrid[i][j] = 0;
                 grid[i][j] = 0;
+                startingGrid[i][j] = false;
             }
         }
     }
@@ -100,7 +108,7 @@ public class Grid {
         for (int i = 0; i < gridSize; i++) {
             for (int j = 0; j < gridSize; j++) {
                 if (!isSolvedAt(i, j) && grid[i][j] != 0) {
-                    unsolvedSquares.add(new Vector2(i, j));
+                    unsolvedSquares.add(new Vector2(j, i));
                 }
             }
         }
@@ -134,24 +142,78 @@ public class Grid {
         grid[i][j] = 0;
     }
 
+    public boolean isStartingSquare(int i, int j) {
+        return startingGrid[i][j];
+    }
+
     public void printGrid() {
-        System.out.print("\t");
-        for (int i = 1; i <= gridSize; i++) {
-            System.out.print(i + "    ");
+        printStyledGrid(null);
+    }
+
+    public void printCheckedGrid() {
+        var wrongSquares = getUnsolvedSquares();
+        printStyledGrid(wrongSquares);
+    }
+
+
+    private void printStyledGrid(ArrayList<Vector2> highlightingSquares) {
+        int boxSize = (int) Math.sqrt(gridSize);
+
+        final String RESET = "\u001B[0m";
+        final String RED = "\u001B[31m";
+
+        System.out.print("  ");
+        for (int i = 0; i < gridSize; i++) {
+            System.out.print(" " + (i + 1) + " ");
+            if ((i + 1) % boxSize == 0 && i < gridSize - 1) {
+                System.out.print("│");
+            }
         }
         System.out.println();
+
         for (int i = 0; i < gridSize; i++) {
-            System.out.print((char) (i + 65) + " ");
+            if (i > 0 && i % boxSize == 0) {
+                System.out.print("   ");
+                for (int j = 0; j < gridSize; j++) {
+                    System.out.print("───");
+                    if ((j + 1) % boxSize == 0 && j < gridSize - 1) {
+                        System.out.print("┼");
+                    }
+                }
+                System.out.println();
+            }
+
+            System.out.print((char) (i + 65) + "  ");
+
             for (int j = 0; j < gridSize; j++) {
-                System.out.print("[  ");
-                if (grid[i][j] != 0)
-                    System.out.print(grid[i][j]);
-                if (j < 9)
-                    System.out.print(" ]");
-                else
-                    System.out.print("  ]");
+                int val = grid[i][j];
+
+                if (val == 0) {
+                    System.out.print(" . ");
+                } else {
+                    boolean isWrong = false;
+                    if (highlightingSquares != null) {
+                        for (Vector2 square : highlightingSquares) {
+                            if (square.x() == j && square.y() == i) {
+                                isWrong = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (isWrong) {
+                        System.out.print(" " + RED + val + RESET + " ");
+                    } else {
+                        System.out.print(" " + val + " ");
+                    }
+                }
+
+                if ((j + 1) % boxSize == 0 && j < gridSize - 1) {
+                    System.out.print("│");
+                }
             }
             System.out.println();
         }
+        System.out.println();
     }
 }

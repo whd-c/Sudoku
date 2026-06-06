@@ -12,6 +12,7 @@ public class Game {
         menu = new Menu(scanner);
 
         grid = new Grid(GRID_SIZE);
+        printCheckedGrid = false;
 
         score = 0;
         difficulty = Difficulty.EASY;
@@ -58,7 +59,7 @@ public class Game {
                 writeToCache();
                 break;
             }
-            menu.printGameMenu(grid);
+            menu.printGameMenu(grid, printCheckedGrid);
             GameOption gameOption = intToGameOption(menu.getMenuInput()).orElse(null);
             if (gameOption == null) {
                 continue;
@@ -68,7 +69,7 @@ public class Game {
                     System.out.println("Enter square to insert to (LetterNumber format):");
                     try {
                         Vector2 square = menu.parseGameOption(GRID_SIZE);
-                        if (grid.getAt(square.y, square.x) != 0) {
+                        if (grid.getAt(square.y(), square.x()) != 0) {
                             throw new IllegalArgumentException("Square is already occupied.");
                         }
                         System.out.println("Insert value to insert: ");
@@ -83,7 +84,7 @@ public class Game {
                         if (val <= 0 || val > GRID_SIZE) {
                             throw new IllegalArgumentException("Value is out of range. (1 - " + GRID_SIZE + ")");
                         }
-                        grid.insertAt(square.y, square.x, val);
+                        grid.insertAt(square.y(), square.x(), val);
                     } catch (IllegalArgumentException e) {
                         System.out.println("Insert error: " + e.getMessage());
                         scanner.nextLine();
@@ -93,27 +94,39 @@ public class Game {
                     System.out.println("Enter square to erase (LetterNumber format):");
                     try {
                         Vector2 square = menu.parseGameOption(GRID_SIZE);
-                        if (grid.getAt(square.y, square.x) == 0) {
+                        if (grid.isStartingSquare(square.y(), square.x())) {
+                            throw new IllegalArgumentException("Cannot delete original squares.");
+                        }
+                        if (grid.getAt(square.y(), square.x()) == 0) {
                             throw new IllegalArgumentException("Square is already empty.");
                         }
-                        grid.removeAt(square.y, square.x);
+                        grid.removeAt(square.y(), square.x());
                     } catch (IllegalArgumentException e) {
                         System.out.println("Erase error: " + e.getMessage());
                         scanner.nextLine();
                     }
                     break;
                 case CHECK_AT:
-//                    System.out.println("Enter square to check (LetterNumber format):");
-//                    try {
-//                        Vector2 square = parseGameOption();
-//                    } catch (IllegalArgumentException e) {
-//                        System.out.println("Check at error: " + e.getMessage());
-//                    scanner.nextLine();
-//                    }
+                    System.out.println("Enter square to check (LetterNumber format):");
+                    try {
+                        Vector2 square = menu.parseGameOption(GRID_SIZE);
+                        int currentValue = grid.getAt(square.y(), square.x());
+
+                        if (currentValue == 0) {
+                            throw new IllegalArgumentException("Square " + (char) (square.y() + 65) + (square.x() + 1) + " is empty.");
+                        } else if (grid.isSolvedAt(square.y(), square.x())) {
+                            System.out.println("The value " + currentValue + " is correct for this square.");
+                        } else {
+                            System.out.println("The value " + currentValue + " is wrong for this square.");
+                        }
+                        scanner.nextLine();
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Check at error: " + e.getMessage());
+                        scanner.nextLine();
+                    }
                     break;
                 case CHECK_GRID:
-                    //color unsolved red
-                    //grid.printCheckedGrid();
+                    printCheckedGrid = !printCheckedGrid;
                     break;
                 case QUIT:
                     inGame = false;
@@ -215,6 +228,7 @@ public class Game {
     private final Scanner scanner;
     private final Grid grid;
     private int score;
+    boolean printCheckedGrid;
     private Difficulty difficulty;
 
     private Optional<MenuOption> intToMenuOption(int i) {
