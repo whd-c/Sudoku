@@ -3,6 +3,7 @@
 Sudoku made in console java.
 
 ## Requirements
+
 - **JDK 17** or higher.
 
 ## How to run
@@ -10,5 +11,6 @@ Sudoku made in console java.
 ```
 git clone https://github.com/whd-c/Sudoku.git
 cd Sudoku
-java -cp "out/production/sudoku;lib/*" Main
+javac -cp "lib\*" -d out src\*.java
+java -cp "out;lib/*" Main
 ```
