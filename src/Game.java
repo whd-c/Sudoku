@@ -5,8 +5,7 @@ public class Game {
 
     public Game() {
         GRID_SIZE = 9;
-        FILE_NAME = "cache.json";
-        cacheManager = new CacheManager(FILE_NAME);
+        cacheManager = new CacheManager("cache.json");
 
         scanner = new Scanner(System.in);
         menu = new Menu(scanner);
@@ -40,8 +39,8 @@ public class Game {
             }
         }
         menu.clearConsole();
-        System.out.println("Thanks for playing!");
-        System.out.println("Final score: " + score);
+        System.out.println(Color.BLUE.apply("Thanks for playing!"));
+        System.out.println(Color.CYAN.apply("Final score: ") + Color.GREEN.apply(Integer.toString(score)));
     }
 
     private void playGameLoop() {
@@ -86,7 +85,7 @@ public class Game {
                         }
                         grid.insertAt(square.y(), square.x(), val);
                     } catch (IllegalArgumentException e) {
-                        System.out.println("Insert error: " + e.getMessage());
+                        System.out.println(Color.RED.apply("Insert error: " + e.getMessage()));
                         scanner.nextLine();
                     }
                     break;
@@ -102,7 +101,7 @@ public class Game {
                         }
                         grid.removeAt(square.y(), square.x());
                     } catch (IllegalArgumentException e) {
-                        System.out.println("Erase error: " + e.getMessage());
+                        System.out.println(Color.RED.apply("Erase error: " + e.getMessage()));
                         scanner.nextLine();
                     }
                     break;
@@ -121,7 +120,7 @@ public class Game {
                         }
                         scanner.nextLine();
                     } catch (IllegalArgumentException e) {
-                        System.out.println("Check at error: " + e.getMessage());
+                        System.out.println(Color.RED.apply("Check at error: " + e.getMessage()));
                         scanner.nextLine();
                     }
                     break;
@@ -192,6 +191,8 @@ public class Game {
         difficulty = Difficulty.EASY;
         score = 0;
         cacheManager.clear();
+        System.out.println("Cache cleared.");
+        scanner.nextLine();
     }
 
     private enum MenuOption {
@@ -222,14 +223,14 @@ public class Game {
 
     private final CacheManager cacheManager;
     private final Menu menu;
+    private final Grid grid;
 
     private final int GRID_SIZE;
-    private final String FILE_NAME;
     private final Scanner scanner;
-    private final Grid grid;
+
     private int score;
-    boolean printCheckedGrid;
     private Difficulty difficulty;
+    private boolean printCheckedGrid;
 
     private Optional<MenuOption> intToMenuOption(int i) {
         return switch (i) {

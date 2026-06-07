@@ -10,17 +10,17 @@ public class Menu {
 
     public void printMainMenu() {
         clearConsole();
-        System.out.println(" $$$$$$\\  $$\\   $$\\ $$$$$$$\\   $$$$$$\\  $$\\   $$\\ $$\\   $$\\ \n" +
+        System.out.println(Color.CYAN.apply(" $$$$$$\\  $$\\   $$\\ $$$$$$$\\   $$$$$$\\  $$\\   $$\\ $$\\   $$\\ \n" +
                 "$$  __$$\\ $$ |  $$ |$$  __$$\\ $$  __$$\\ $$ | $$  |$$ |  $$ |\n" +
                 "$$ /  \\__|$$ |  $$ |$$ |  $$ |$$ /  $$ |$$ |$$  / $$ |  $$ |\n" +
                 "\\$$$$$$\\  $$ |  $$ |$$ |  $$ |$$ |  $$ |$$$$$  /  $$ |  $$ |\n" +
                 " \\____$$\\ $$ |  $$ |$$ |  $$ |$$ |  $$ |$$  $$<   $$ |  $$ |\n" +
                 "$$\\   $$ |$$ |  $$ |$$ |  $$ |$$ |  $$ |$$ |\\$$\\  $$ |  $$ |\n" +
                 "\\$$$$$$  |\\$$$$$$  |$$$$$$$  | $$$$$$  |$$ | \\$$\\ \\$$$$$$  |\n" +
-                " \\______/  \\______/ \\_______/  \\______/ \\__|  \\__| \\______/ ");
-        System.out.println("\t\t 1. Play");
-        System.out.println("\t\t 2. Settings");
-        System.out.println("\t\t 3. Quit");
+                " \\______/  \\______/ \\_______/  \\______/ \\__|  \\__| \\______/ "));
+        System.out.println(Color.GREEN.apply("\t\t 1. Play"));
+        System.out.println(Color.BLUE.apply("\t\t 2. Settings"));
+        System.out.println(Color.RED.apply("\t\t 3. Quit"));
     }
 
     public void printGameMenu(Grid grid, boolean checkedGrid) {
@@ -30,27 +30,27 @@ public class Menu {
         } else {
             grid.printGrid();
         }
-        System.out.println("\t\t 1. Insert");
-        System.out.println("\t\t 2. Erase");
-        System.out.println("\t\t 3. Check square");
-        System.out.println("\t\t 4. Check grid");
-        System.out.println("\t\t 5. Quit");
+        System.out.println(Color.GREEN.apply("\t\t 1. Insert"));
+        System.out.println(Color.ORANGE.apply("\t\t 2. Erase"));
+        System.out.println(Color.YELLOW.apply("\t\t 3. Check square"));
+        System.out.println(Color.PURPLE.apply("\t\t 4. Check grid"));
+        System.out.println(Color.RED.apply("\t\t 5. Quit"));
     }
 
     public void printSettingsMenu() {
         clearConsole();
-        System.out.println("Settings.");
-        System.out.println("\t\t 1. Set difficulty");
-        System.out.println("\t\t 2. Clear cache");
-        System.out.println("\t\t 3. Back to menu");
+        System.out.println(Color.BLUE.apply("Settings."));
+        System.out.println(Color.PURPLE.apply("\t\t 1. Set difficulty"));
+        System.out.println(Color.CYAN.apply("\t\t 2. Clear cache"));
+        System.out.println(Color.RED.apply("\t\t 3. Back to menu"));
     }
 
     public void printDifficultyMenu() {
         clearConsole();
-        System.out.println("Select your difficulty:");
-        System.out.println("\t\t1. Easy");
-        System.out.println("\t\t2. Medium");
-        System.out.println("\t\t3. Hard");
+        System.out.println(Color.BLUE.apply("Select your difficulty:"));
+        System.out.println(Color.GREEN.apply("\t\t1. Easy"));
+        System.out.println(Color.YELLOW.apply("\t\t2. Medium"));
+        System.out.println(Color.RED.apply("\t\t3. Hard"));
     }
 
     public int getMenuInput() {

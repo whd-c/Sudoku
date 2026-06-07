@@ -159,14 +159,11 @@ public class Grid {
     private void printStyledGrid(ArrayList<Vector2> highlightingSquares) {
         int boxSize = (int) Math.sqrt(gridSize);
 
-        final String RESET = "\u001B[0m";
-        final String RED = "\u001B[31m";
-
-        System.out.print("  ");
+        System.out.print("   ");
         for (int i = 0; i < gridSize; i++) {
-            System.out.print(" " + (i + 1) + " ");
+            System.out.print(" " + Color.CYAN.apply(Integer.toString(i + 1)) + " ");
             if ((i + 1) % boxSize == 0 && i < gridSize - 1) {
-                System.out.print("│");
+                System.out.print(" ");
             }
         }
         System.out.println();
@@ -175,15 +172,15 @@ public class Grid {
             if (i > 0 && i % boxSize == 0) {
                 System.out.print("   ");
                 for (int j = 0; j < gridSize; j++) {
-                    System.out.print("───");
+                    System.out.print(Color.BLACK.apply("───"));
                     if ((j + 1) % boxSize == 0 && j < gridSize - 1) {
-                        System.out.print("┼");
+                        System.out.print(Color.BLACK.apply("┼"));
                     }
                 }
                 System.out.println();
             }
 
-            System.out.print((char) (i + 65) + "  ");
+            System.out.print(Color.CYAN.apply(Character.toString((char) (i + 65))) + "  ");
 
             for (int j = 0; j < gridSize; j++) {
                 int val = grid[i][j];
@@ -202,14 +199,14 @@ public class Grid {
                     }
 
                     if (isWrong) {
-                        System.out.print(" " + RED + val + RESET + " ");
+                        System.out.print(" " + Color.RED.apply(Integer.toString(val)) + " ");
                     } else {
                         System.out.print(" " + val + " ");
                     }
                 }
 
                 if ((j + 1) % boxSize == 0 && j < gridSize - 1) {
-                    System.out.print("│");
+                    System.out.print(Color.BLACK.apply("│"));
                 }
             }
             System.out.println();
