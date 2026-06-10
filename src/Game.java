@@ -188,14 +188,13 @@ public class Game {
     }
 
     private void readCache() {
-        CacheData data = cacheManager.read();
-
-        score = data.score();
-
         try {
+            CacheData data = cacheManager.read();
+            score = data.score();
             difficulty = Difficulty.valueOf(data.difficulty());
-        } catch (IllegalArgumentException e) {
-            difficulty = Difficulty.EASY;
+        } catch (Exception e) {
+            System.out.println("Cache is corrupted. Resetting...");
+            clearCache();
         }
     }
 
