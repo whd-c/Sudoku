@@ -172,9 +172,9 @@ public class Grid {
             if (i > 0 && i % boxSize == 0) {
                 System.out.print("   ");
                 for (int j = 0; j < gridSize; j++) {
-                    System.out.print(Color.BLACK.apply("───"));
+                    System.out.print(Color.CYAN.apply("───"));
                     if ((j + 1) % boxSize == 0 && j < gridSize - 1) {
-                        System.out.print(Color.BLACK.apply("┼"));
+                        System.out.print(Color.CYAN.apply("┼"));
                     }
                 }
                 System.out.println();
@@ -206,7 +206,7 @@ public class Grid {
                 }
 
                 if ((j + 1) % boxSize == 0 && j < gridSize - 1) {
-                    System.out.print(Color.BLACK.apply("│"));
+                    System.out.print(Color.CYAN.apply("│"));
                 }
             }
             System.out.println();

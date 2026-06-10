@@ -40,7 +40,8 @@ public class Game {
         }
         menu.clearConsole();
         System.out.println(Color.BLUE.apply("Thanks for playing!"));
-        System.out.println(Color.CYAN.apply("Final score: ") + Color.GREEN.apply(Integer.toString(score)));
+        System.out.println(Color.CYAN.apply("Final score: ") + Color.GREEN.apply(Long.toString(score)));
+        writeToCache();
     }
 
     private void playGameLoop() {
@@ -54,7 +55,15 @@ public class Game {
                     case HARD -> score += 300;
                 }
                 menu.clearConsole();
-                System.out.println("You win!");
+                System.out.println(Color.GREEN.apply(" ____  ____   ___   _____  _____   ____      ____   ___   ____  _____  _  \n" +
+                        "|_  _||_  _|.'   `.|_   _||_   _| |_  _|    |_  _|.'   `.|_   \\|_   _|| | \n" +
+                        "  \\ \\  / / /  .-.  \\ | |    | |     \\ \\  /\\  / / /  .-.  \\ |   \\ | |  | | \n" +
+                        "   \\ \\/ /  | |   | | | '    ' |      \\ \\/  \\/ /  | |   | | | |\\ \\| |  | | \n" +
+                        "   _|  |_  \\  `-'  /  \\ \\__/ /        \\  /\\  /   \\  `-'  /_| |_\\   |_ |_| \n" +
+                        "  |______|  `.___.'    `.__.'          \\/  \\/     `.___.'|_____|\\____|(_) \n" +
+                        "   "));
+                System.out.println("Your score: " + score);
+                scanner.nextLine();
                 writeToCache();
                 break;
             }
@@ -128,7 +137,10 @@ public class Game {
                     printCheckedGrid = !printCheckedGrid;
                     break;
                 case QUIT:
-                    inGame = false;
+                    System.out.println(Color.RED.apply("Are you sure you wanna quit? (Y/N)"));
+                    String ans = scanner.nextLine().trim().toUpperCase();
+                    if (ans.equals("Y"))
+                        inGame = false;
                     break;
             }
         }
@@ -228,10 +240,12 @@ public class Game {
     private final int GRID_SIZE;
     private final Scanner scanner;
 
-    private int score;
+    private long score;
     private Difficulty difficulty;
     private boolean printCheckedGrid;
 
+
+    //zostawię tak te funkcje do konwersji enumów bo nie chce mi się robić metod
     private Optional<MenuOption> intToMenuOption(int i) {
         return switch (i) {
             case 1 -> Optional.of(MenuOption.PLAY);
@@ -272,9 +286,9 @@ public class Game {
 
     private int emptyCellsAmount(Difficulty diff) {
         return switch (diff) {
-            case EASY -> (int) (0.5 * GRID_SIZE * GRID_SIZE);
-            case MEDIUM -> (int) (0.6 * GRID_SIZE * GRID_SIZE);
-            case HARD -> (int) (0.75 * GRID_SIZE * GRID_SIZE);
+            case EASY -> (int) (0.4 * GRID_SIZE * GRID_SIZE);
+            case MEDIUM -> (int) (0.5 * GRID_SIZE * GRID_SIZE);
+            case HARD -> (int) (0.6 * GRID_SIZE * GRID_SIZE);
         };
     }
 
