@@ -61,7 +61,21 @@ public class Menu {
         } else {
             scanner.nextLine();
             return -1;
+            //zwracam -1 bo to jest poza zasiegiem switchow
         }
+    }
+
+    public void printVictoryScreen(long score) {
+        clearConsole();
+        System.out.println(Color.GREEN.apply(" ____  ____   ___   _____  _____   ____      ____   ___   ____  _____  _  \n" +
+                "|_  _||_  _|.'   `.|_   _||_   _| |_  _|    |_  _|.'   `.|_   \\|_   _|| | \n" +
+                "  \\ \\  / / /  .-.  \\ | |    | |     \\ \\  /\\  / / /  .-.  \\ |   \\ | |  | | \n" +
+                "   \\ \\/ /  | |   | | | '    ' |      \\ \\/  \\/ /  | |   | | | |\\ \\| |  | | \n" +
+                "   _|  |_  \\  `-'  /  \\ \\__/ /        \\  /\\  /   \\  `-'  /_| |_\\   |_ |_| \n" +
+                "  |______|  `.___.'    `.__.'          \\/  \\/     `.___.'|_____|\\____|(_) \n" +
+                "   "));
+        System.out.println("Your score: " + score);
+        scanner.nextLine();
     }
 
     public Vector2 parseGameOption(int gridSize) {

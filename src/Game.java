@@ -54,16 +54,7 @@ public class Game {
                     case MEDIUM -> score += 200;
                     case HARD -> score += 300;
                 }
-                menu.clearConsole();
-                System.out.println(Color.GREEN.apply(" ____  ____   ___   _____  _____   ____      ____   ___   ____  _____  _  \n" +
-                        "|_  _||_  _|.'   `.|_   _||_   _| |_  _|    |_  _|.'   `.|_   \\|_   _|| | \n" +
-                        "  \\ \\  / / /  .-.  \\ | |    | |     \\ \\  /\\  / / /  .-.  \\ |   \\ | |  | | \n" +
-                        "   \\ \\/ /  | |   | | | '    ' |      \\ \\/  \\/ /  | |   | | | |\\ \\| |  | | \n" +
-                        "   _|  |_  \\  `-'  /  \\ \\__/ /        \\  /\\  /   \\  `-'  /_| |_\\   |_ |_| \n" +
-                        "  |______|  `.___.'    `.__.'          \\/  \\/     `.___.'|_____|\\____|(_) \n" +
-                        "   "));
-                System.out.println("Your score: " + score);
-                scanner.nextLine();
+                menu.printVictoryScreen(score);
                 writeToCache();
                 break;
             }
